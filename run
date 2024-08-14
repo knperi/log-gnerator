@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Env Vars:
+# REGISTRY: name of the image registry/namespace to get the images
+
+# Clean up previous run
+function clean() {
+  set +ex
+  echo Cleaning...
+  (
+  ibmcloud ce app delete -n icl-demo-app -f
+  ibmcloud ce jobrun delete -n hi-job -f
+  rm -f out
+  ) > /dev/null 2>&1
+}
+
+clean
+[[ "$1" == "clean" ]] && exit 0
+
+set -ex
+export REGISTRY=${REGISTRY:-icr.io/codeengine}
+
+# Create the app
+ibmcloud ce app create -n icl-demo-app --image ${REGISTRY}/icl-demo-app
+
+# Get the URL of the app for later use
+URL=$(ibmcloud ce app get -n icl-demo-app -o url)
+
+# Now call it
+curl -w "\n%{http_code}\n" -fs $URL | tee out
+if ! [[ "${PIPESTATUS[0]}" == "0" ]] ; then
+  echo "Expected zero return code"
+  cat out
+  exit 1
+fi
+
+curl -w "\n%{http_code}\n" -fs $URL -d "Hi" -o out
+if [[ $(cat out) != "Hi" ]]; then
+  echo "Unexpected output"
+  cat out
+  exit 1
+fi
+
+# Since the image can be used as a job too, test it
+ibmcloud ce jobrun submit --name icl-demo-app-job --ai=1 --image ${REGISTRY}/icl-demo-app \
+  --wait
+ibmcloud ce jobrun logs -n icl-demo-app-job | tee out | grep "Hello from.*job" || exit 1
+
+# Clean up
+clean
