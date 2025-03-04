@@ -6,13 +6,13 @@
 # Clean up previous run
 function clean() {
   set +ex
-  echo Cleaning...
+  echo Cleaning... 
   (
   ibmcloud ce app delete -n tinyapp -f
-  ibmcloud ce jobrun delete -n hi-job -f
+  ibmcloud ce jobrun delete -n tinyapp-job -f
   rm -f out
   ) > /dev/null 2>&1
-}
+} 
 
 clean
 [[ "$1" == "clean" ]] && exit 0
@@ -24,7 +24,7 @@ export REGISTRY=${REGISTRY:-icr.io/codeengine}
 ibmcloud ce app create -n tinyapp --image ${REGISTRY}/tinyapp
 
 # Get the URL of the app for later use
-URL=$(ibmcloud ce app get -n icl-demo-app -o url)
+URL=$(ibmcloud ce app get -n tinyapp -o url)
 
 # Now call it
 curl -w "\n%{http_code}\n" -fs $URL | tee out
@@ -42,9 +42,9 @@ if [[ $(cat out) != "Hi" ]]; then
 fi
 
 # Since the image can be used as a job too, test it
-ibmcloud ce jobrun submit --name icl-demo-app-job --ai=1 --image ${REGISTRY}/icl-demo-app \
+ibmcloud ce jobrun submit --name hi-job --ai=1 --image ${REGISTRY}/tinyapp \
   --wait
-ibmcloud ce jobrun logs -n icl-demo-app-job | tee out | grep "Hello from.*job" || exit 1
+ibmcloud ce jobrun logs -n tinyapp-job | tee out | grep "Hello from.*job" || exit 1
 
 # Clean up
 clean
