@@ -8,7 +8,7 @@ function clean() {
   set +ex
   echo Cleaning...
   (
-  ibmcloud ce app delete -n icl-demo-app -f
+  ibmcloud ce app delete -n tinyapp -f
   ibmcloud ce jobrun delete -n hi-job -f
   rm -f out
   ) > /dev/null 2>&1
@@ -21,7 +21,7 @@ set -ex
 export REGISTRY=${REGISTRY:-icr.io/codeengine}
 
 # Create the app
-ibmcloud ce app create -n icl-demo-app --image ${REGISTRY}/icl-demo-app
+ibmcloud ce app create -n tinyapp --image ${REGISTRY}/tinyapp
 
 # Get the URL of the app for later use
 URL=$(ibmcloud ce app get -n icl-demo-app -o url)
