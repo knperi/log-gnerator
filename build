@@ -13,11 +13,11 @@ set -ex
 export REGISTRY=${REGISTRY:-icr.io/codeengine}
 
 # Build the image
-docker build ${NOCACHE} -t ${REGISTRY}/icl-demo-app . --platform linux/amd64
+docker build ${NOCACHE} -t ${REGISTRY}/tinyapp . --platform linux/amd64
 
 # And push it
-docker push ${REGISTRY}/icl-demo-app
+docker push ${REGISTRY}/tinyapp
 
 # Copy the image so it's also called ${REGISTRY}/codeengine, and push it
-docker tag ${REGISTRY}/icl-demo-app ${REGISTRY}/codeengine
+docker tag ${REGISTRY}/tinyapp ${REGISTRY}/codeengine
 docker push ${REGISTRY}/codeengine
