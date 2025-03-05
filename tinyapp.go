@@ -68,7 +68,7 @@ func main() {
 	srv := &http.Server{Addr: ":8080"}
 
 	// Debug the http handler for all requests
-	http.HandleFunc("/", HandleHTTP)
+	// http.HandleFunc("/", HandleHTTP)
 
 	// Seed the random number generator
 	rand.Seed(time.Now().UnixNano())
@@ -86,7 +86,7 @@ func main() {
 
 	if delay := os.Getenv("HTTP_DELAY"); delay != "" {
 			if sec, _ := strconv.Atoi(delay); sec != 0 {
-				Debug(false, "Sleeping %d seconds", sec)
+				Debug("Sleeping %d seconds", sec)
 				time.Sleep(time.Duration(sec) * time.Second)
 			}
 		}
@@ -97,7 +97,7 @@ func main() {
 			Debug("Listening on port 8080")
 
 			if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-				log.Fatalf("failed to start server: %v", err)
+				Debug ("failed to start server: %v", err)
 			}
 		}()
 
