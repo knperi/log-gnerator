@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
-	"context"
-	"net/http"
 	"os"
 	"strconv"
 	"os/signal"
@@ -61,9 +59,9 @@ func main() {
 	colorArray := []string{"red", "green", "yellow", "blue", "magenta", "cyan", "gray", "white"}
 	logLevels := []string{"CRITICAL", "DEBUG", "EMERGENCY", "ERROR", "FATAL", "INFO", "SEVERE", "TRACE", "WARN", "ALERT"}
 
-	ctx := context.Background()
+	/* ctx := context.Background()
 	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
+	signal.Notify(signals, os.Interrupt, syscall.SIGTERM) */
 
 	srv := &http.Server{Addr: ":8080"}
 
