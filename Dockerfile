@@ -1,10 +1,9 @@
-FROM icr.io/codeengine/golang:alpine
-RUN apk -U upgrade
+# Use a builder image to compile the go lang code
+FROM icr.io/codeengine/golang:alpine AS builder
 COPY tinyapp.go /
-RUN go build -ldflags '-s -w -extldflags "-static"' -o /tinyapp /tinyapp.go
+RUN go build -o /tinyapp /tinyapp.go
 
-# Copy the exe into a smaller base image
+# Copy the exe into a smaller base image for runtime
 FROM icr.io/codeengine/alpine
-RUN apk -U upgrade
-COPY --from=0 /tinyapp /tinyapp
+COPY --from=builder /tinyapp /tinyapp
 CMD /tinyapp
