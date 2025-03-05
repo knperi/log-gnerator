@@ -5,10 +5,9 @@ import (
 	"math/rand"
 	"time"
 	"context"
-	"io"
-	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"os/signal"
 	"syscall"
 )
@@ -84,4 +83,28 @@ func main() {
 		randomLevel := rand.Intn(len(logLevels))
 		printColor (colorArray[randomColor], logLevels[randomLevel])
 	}
+
+	if delay := os.Getenv("HTTP_DELAY"); delay != "" {
+			if sec, _ := strconv.Atoi(delay); sec != 0 {
+				Debug(false, "Sleeping %d seconds", sec)
+				time.Sleep(time.Duration(sec) * time.Second)
+			}
+		}
+
+		go func() {
+			
+			Debug("An instance of application '%s' has been started :)", os.Getenv("CE_APP"))
+			Debug("Listening on port 8080")
+
+			if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+				log.Fatalf("failed to start server: %v", err)
+			}
+		}()
+
+		<-signals
+		Debug("shutting down server")
+		if err := srv.Shutdown(ctx); err != nil {
+			Debug ("failed to shutdown server: %v", err)
+		}
+		Debug("shutdown done")
 }
