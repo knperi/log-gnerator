@@ -1,4 +1,4 @@
-# icl-tinyapp
+# LogGenerator 
 
 A pretty simple golang application that, prints a random string
 from an array and returns it back to the caller.
