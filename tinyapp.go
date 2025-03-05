@@ -4,7 +4,19 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+	"context"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 )
+
+func Debug(format string, args ...interface{}) {
+	format = time.Now().Format("2006-01-02 15:04:05 ") + format + "\n"
+	fmt.Fprintf(os.Stdout, format, args...)
+}
 
 func printColor (color string, logLevel string) {
 	const (
@@ -20,34 +32,44 @@ func printColor (color string, logLevel string) {
 	)
 
 	timestamp := time.Now()
-
+	
 	// Print the random string
 	switch logLevel {
-		case "CRITICAL":
- 		case "SEVERE":
-			fmt.Println(timestamp, Red + "CRITICAL " + "Severe Error" + Reset )
- 		case "DEBUG":
-			fmt.Println(timestamp, Green + "DEBUG " + "This is a Debug line" + Reset )
- 		case "EMERGENCY":
-			fmt.Println(timestamp, Cyan + "EMERGENCY " + "Emergency Maintenance Notification" + Reset)
- 		case "ERROR":
-			fmt.Println(timestamp, Magenta + "ERROR "+ "An error occured " + Reset)
- 		case "FATAL":
-			fmt.Println(timestamp, Red + "FATAL " + "Fatal error. Check infra" + Reset )
- 		case "INFO":
-			fmt.Println(timestamp, Cyan + "INFO " + "This is for information only" + Reset )
- 		case "TRACE":
-			fmt.Println(timestamp, White + "TRACE " + "Tracelog: Check logs ... " + Reset )
- 		case "WARN":
-			fmt.Println(timestamp, Blue + "WARNING " + "Warning: Too many comments " + Reset )
- 		case "ALERT":
-			fmt.Println(timestamp, Gray + "ALERT " + "Alerting on PagerDuty " + Reset  )
-		}
+                case "CRITICAL":
+                        Debug( "%s %s\n", timestamp, Red + "CRITICAL " + "Critical Error" + Reset )
+                case "SEVERE":
+                        Debug( "%s %s\n", timestamp, Red + "SEVERE " + "Severe Error" + Reset )
+                case "DEBUG":
+                        Debug( "%s %s\n", timestamp, Green + "DEBUG " + "This is a Debug line" + Reset )
+                case "EMERGENCY":
+                        Debug( "%s %s\n", timestamp, Cyan + "EMERGENCY " + "Emergency Maintenance Notification" + Reset )
+                case "ERROR":
+                        Debug( "%s %s\n", timestamp, Magenta + "ERROR "+ "An error occured " + Reset )
+                case "FATAL":
+                        Debug( "%s %s\n", timestamp, Red + "FATAL " + "Fatal error. Check infra" + Reset )
+                case "INFO":
+                        Debug( "%s %s\n", timestamp, Cyan + "INFO " + "This is for information only" + Reset )
+                case "TRACE":
+                        Debug( "%s %s\n", timestamp, White + "TRACE " + "Tracelog: Check logs ... " + Reset )
+                case "WARN":
+                        Debug( "%s %s\n", timestamp, Blue + "WARNING " + "Warning: Too many comments " + Reset )
+                case "ALERT":
+                        Debug( "%s %s\n", timestamp, Gray + "ALERT " + "Alerting on PagerDuty " + Reset )
+        }
 }
 
 func main() {
 	colorArray := []string{"red", "green", "yellow", "blue", "magenta", "cyan", "gray", "white"}
 	logLevels := []string{"CRITICAL", "DEBUG", "EMERGENCY", "ERROR", "FATAL", "INFO", "SEVERE", "TRACE", "WARN", "ALERT"}
+
+	ctx := context.Background()
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
+
+	srv := &http.Server{Addr: ":8080"}
+
+	// Debug the http handler for all requests
+	http.HandleFunc("/", HandleHTTP)
 
 	// Seed the random number generator
 	rand.Seed(time.Now().UnixNano())
